@@ -10,7 +10,7 @@ function BuildDocs {
     $Docs = Join-Path $Here docs
     
     if (Test-Path $Docs) {
-        Remove-Item $Docs\*
+        Remove-Item $Docs\**\*
     }
     else {
         New-Item -Path $Docs -ItemType Directory
@@ -20,7 +20,7 @@ function BuildDocs {
     ng build --prod --base-href $SiteUrl
     Pop-Location
 
-    Copy-Item $Dist\* $Docs
+    Copy-Item $Dist\**\* $Docs
 }
 
 BuildDocs -SiteUrl "https://peter554.github.io/rxjs-pacman/" -ProjectName "web-ui"
