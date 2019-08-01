@@ -15,11 +15,12 @@ function BuildDocs {
     
     if (Test-Path $Docs) {
         Remove-Item $Docs\*
-    } else {
+    }
+    else {
         New-Item -Path $Docs -ItemType Directory
     }
 
     Copy-Item $Dist\* $Docs
 }
 
-BuildDocs -SiteUrl "www.foo.com" -ProjectName "web-ui"
+BuildDocs -SiteUrl "https://peter554.github.io/rxjs-pacman" -ProjectName "web-ui"
