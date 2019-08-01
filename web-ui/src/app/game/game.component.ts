@@ -7,6 +7,10 @@ import { map, tap, switchMap, distinctUntilChanged } from 'rxjs/operators';
 import { GameDrawer } from '../_drawing/game-drawer';
 import { RestartGameAction } from '../_actions/restart-game-action';
 import { GameStoppedToggleAction } from '../_actions/game-stopped-toggle.action';
+import { KeyUpAction } from '../_actions/key-up-action';
+import { KeyLeftAction } from '../_actions/key-left-action';
+import { KeyDownAction } from '../_actions/key-down-action';
+import { KeyRightAction } from '../_actions/key-right-action';
 
 @Component({
   selector: 'app-game',
@@ -54,5 +58,21 @@ export class GameComponent implements OnInit {
 
   public handleClickOnPause(): void {
     this._gameEngine.dispatch(new GameStoppedToggleAction());
+  }
+
+  public handleSwipeUp(): void {
+    this._gameEngine.dispatch(new KeyUpAction());
+  }
+
+  public handleSwipeLeft(): void {
+    this._gameEngine.dispatch(new KeyLeftAction());
+  }
+
+  public handleSwipeRight(): void {
+    this._gameEngine.dispatch(new KeyRightAction());
+  }
+
+  public handleSwipeDown(): void {
+    this._gameEngine.dispatch(new KeyDownAction());
   }
 }

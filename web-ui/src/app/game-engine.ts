@@ -15,7 +15,7 @@ export const FPS = 5;
 @Injectable({ providedIn: 'root' })
 export class GameEngine {
   constructor(private readonly _controls: GameControls, private readonly _reducer: RootReducer) {
-    this._controls.setupControls(this.dispatch.bind(this));
+    this._controls.setupKeybindings(this.dispatch.bind(this));
 
     this.actions$ = this._actions$.asObservable();
 

@@ -1,13 +1,20 @@
-<canvas #canvas width="1900" height="2100" class="game"></canvas>
-<div class="game-bar d-flex justify-content-between align-items-center">
-  <div>
-    <button class="btn btn-primary mr-1" (click)="handleClickOnRestart()">Restart</button>
-    <button class="btn btn-primary" (click)="handleClickOnPause()" *ngIf="!(gameIsOver$ | async)">
-      {{ (gameIsStopped$ | async) ? 'Resume' : 'Pause' }}
-    </button>
-  </div>
-  <div>
-    <span class="mr-3">Time: {{ gameTime$ | async }}</span>
-    <span>Score: {{ playerScore$ | async }}</span>
+<div
+  (swipeup)="handleSwipeUp()"
+  (swipeleft)="handleSwipeLeft()"
+  (swiperight)="handleSwipeRight()"
+  (swipedown)="handleSwipeDown()"
+>
+  <canvas #canvas width="1900" height="2100" class="game"></canvas>
+  <div class="game-bar d-flex justify-content-between align-items-center">
+    <div>
+      <button class="btn btn-primary mr-1" (click)="handleClickOnRestart()">Restart</button>
+      <button class="btn btn-primary" (click)="handleClickOnPause()" *ngIf="!(gameIsOver$ | async)">
+        {{ (gameIsStopped$ | async) ? 'Resume' : 'Pause' }}
+      </button>
+    </div>
+    <div>
+      <span class="mr-3">Time: {{ gameTime$ | async }}</span>
+      <span>Score: {{ playerScore$ | async }}</span>
+    </div>
   </div>
 </div>

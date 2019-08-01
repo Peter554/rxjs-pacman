@@ -13,7 +13,7 @@ import { Action } from './_actions/action';
 export class GameControls {
   constructor(private readonly _ngZone: NgZone) {}
 
-  public setupControls(dispatch: (action: Action) => void): void {
+  public setupKeybindings(dispatch: (action: Action) => void): void {
     Mousetrap.bind('w', () => {
       this._ngZone.run(() => {
         dispatch(new KeyUpAction());
