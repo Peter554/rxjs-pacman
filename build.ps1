@@ -9,16 +9,16 @@ function BuildDocs {
     $Dist = Join-Path $Project (Join-Path dist $ProjectName)
     $Docs = Join-Path $Here docs
     
-    Push-Location $Project
-    ng build --prod --base-href $SiteUrl
-    Pop-Location
-    
     if (Test-Path $Docs) {
         Remove-Item $Docs\*
     }
     else {
         New-Item -Path $Docs -ItemType Directory
     }
+
+    Push-Location $Project
+    ng build --prod --base-href $SiteUrl
+    Pop-Location
 
     Copy-Item $Dist\* $Docs
 }
