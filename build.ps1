@@ -23,4 +23,4 @@ function BuildDocs {
     Copy-Item $Dist\* $Docs
 }
 
-BuildDocs -SiteUrl "https://peter554.github.io/rxjs-pacman" -ProjectName "web-ui"
+BuildDocs -SiteUrl "https://peter554.github.io/rxjs-pacman/" -ProjectName "web-ui"
