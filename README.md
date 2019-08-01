@@ -1,1 +1,1 @@
-# Prerelease.Samples.RxJS-Pacman
+# rxjs-pacman
