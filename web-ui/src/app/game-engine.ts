@@ -4,23 +4,27 @@ import { scan, shareReplay, startWith, map, distinctUntilChanged, switchMap, tap
 
 import { GameState } from './_models/game-state';
 import { Action } from './_actions/action';
-import { getInitialGameState } from './_helpers/get-initial-game-state';
 import { RootReducer } from './_reducers/root-reducer';
 import { GameControls } from './game-controls';
 import { NextFrameAction } from './_actions/next-frame-action';
+import { InitialStateFactory } from './_helpers/initial-state-factory';
 
 export const FPS = 5;
 
 @Injectable({ providedIn: 'root' })
 export class GameEngine {
-  constructor(private readonly _controls: GameControls, private readonly _reducer: RootReducer) {
+  constructor(
+    private readonly _controls: GameControls,
+    private readonly _reducer: RootReducer,
+    private readonly _initialStateFactory: InitialStateFactory
+  ) {
     this._controls.setupKeybindings(this.dispatch.bind(this));
 
     this.actions$ = this._actions$.asObservable();
 
     this.state$ = this.actions$.pipe(
-      scan<Action, GameState>(this._reducer.reduce, getInitialGameState()),
-      startWith(getInitialGameState()),
+      scan<Action, GameState>(this._reducer.reduce, this._initialStateFactory.getInitialState()),
+      startWith(this._initialStateFactory.getInitialState()),
       shareReplay(1)
     );
 
