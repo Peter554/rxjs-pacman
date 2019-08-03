@@ -14,7 +14,6 @@ import { NextFrameAction } from '../_actions/next-frame-action';
 import { Direction } from '../_models/direction';
 import { InitialStateFactory } from '../_helpers/initial-state-factory';
 import { GameCoordinateHelper } from '../_helpers/game-coordinate-helper';
-import { getGameCoordinateNeighbour } from '../_helpers/get-game-coordinate-neighbour';
 import { GameCoordinate } from '../_models/game-coordinate';
 import { GhostState } from '../_models/ghost-state';
 import { turnLeft, turnRight, turnAround } from '../_helpers/direction-helpers';
@@ -61,7 +60,7 @@ export class RootReducer implements Reducer<Action> {
       if (!draft.gameIsStopped && !draft.gameIsOver) {
         draft.frames += 1;
 
-        const tryPlayerAt = getGameCoordinateNeighbour(draft.player.at, draft.player.facing, 19, 21);
+        const tryPlayerAt = this._gameCoordinateHelper.getNeighbour(draft.player.at, draft.player.facing, 19, 21);
         if (!this._gameCoordinateHelper.contains(draft.wallsAt, tryPlayerAt)) {
           draft.player.at = tryPlayerAt;
         }
@@ -100,7 +99,7 @@ export class RootReducer implements Reducer<Action> {
   private _evolveGhost(ghost: GhostState, walls: GameCoordinate[]): void {
     let newFacing = ghost.facing;
 
-    const newAt = (d: Direction) => getGameCoordinateNeighbour(ghost.at, d, 19, 21);
+    const newAt = (d: Direction) => this._gameCoordinateHelper.getNeighbour(ghost.at, d, 19, 21);
     const inWall = (d: Direction) => walls.some(o => new GameCoordinateHelper().areEqual(o, newAt(d)));
 
     if (Math.random() < 0.2) {
