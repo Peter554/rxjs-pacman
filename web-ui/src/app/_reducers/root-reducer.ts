@@ -16,7 +16,7 @@ import { InitialStateFactory } from '../_helpers/initial-state-factory';
 import { GameCoordinateHelper } from '../_helpers/game-coordinate-helper';
 import { GameCoordinate } from '../_models/game-coordinate';
 import { GhostState } from '../_models/ghost-state';
-import { turnLeft, turnRight, turnAround } from '../_helpers/direction-helpers';
+import { DirectionHelper } from '../_helpers/direction-helpers';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +24,8 @@ import { turnLeft, turnRight, turnAround } from '../_helpers/direction-helpers';
 export class RootReducer implements Reducer<Action> {
   constructor(
     private readonly _initialStateFactory: InitialStateFactory,
-    private readonly _gameCoordinateHelper: GameCoordinateHelper
+    private readonly _gameCoordinateHelper: GameCoordinateHelper,
+    private readonly _directionHelper: DirectionHelper
   ) {}
 
   public reduce(state: GameState, action: Action): GameState {
@@ -103,7 +104,10 @@ export class RootReducer implements Reducer<Action> {
     const inWall = (d: Direction) => walls.some(o => new GameCoordinateHelper().areEqual(o, newAt(d)));
 
     if (Math.random() < 0.2) {
-      newFacing = Math.random() < 0.5 ? turnLeft(ghost.facing) : turnRight(ghost.facing);
+      newFacing =
+        Math.random() < 0.5
+          ? this._directionHelper.turnLeft(ghost.facing)
+          : this._directionHelper.turnRight(ghost.facing);
     }
 
     if (inWall(newFacing)) {
@@ -113,15 +117,19 @@ export class RootReducer implements Reducer<Action> {
     const leftFirst = Math.random() < 0.5;
 
     if (inWall(newFacing)) {
-      newFacing = leftFirst ? turnLeft(ghost.facing) : turnRight(ghost.facing);
+      newFacing = leftFirst
+        ? this._directionHelper.turnLeft(ghost.facing)
+        : this._directionHelper.turnRight(ghost.facing);
     }
 
     if (inWall(newFacing)) {
-      newFacing = leftFirst ? turnRight(ghost.facing) : turnLeft(ghost.facing);
+      newFacing = leftFirst
+        ? this._directionHelper.turnRight(ghost.facing)
+        : this._directionHelper.turnLeft(ghost.facing);
     }
 
     if (inWall(newFacing)) {
-      newFacing = turnAround(ghost.facing);
+      newFacing = this._directionHelper.turnAround(ghost.facing);
     }
 
     ghost.facing = newFacing;
