@@ -15,7 +15,9 @@ import { Direction } from '../_models/direction';
 import { InitialStateFactory } from '../_helpers/initial-state-factory';
 import { GameCoordinateHelper } from '../_helpers/game-coordinate-helper';
 import { getGameCoordinateNeighbour } from '../_helpers/get-game-coordinate-neighbour';
-import { evolveGhost } from '../_helpers/evolve-ghost-position';
+import { GameCoordinate } from '../_models/game-coordinate';
+import { GhostState } from '../_models/ghost-state';
+import { turnLeft, turnRight, turnAround } from '../_helpers/direction-helpers';
 
 @Injectable({
   providedIn: 'root'
@@ -70,7 +72,7 @@ export class RootReducer implements Reducer<Action> {
 
         if (!draft.gameIsOver) {
           draft.ghosts.forEach(ghost => {
-            evolveGhost(ghost, draft.wallsAt);
+            this._evolveGhost(ghost, draft.wallsAt);
           });
 
           if (this._gameCoordinateHelper.contains(draft.ghosts.map(o => o.at), draft.player.at)) {
@@ -93,5 +95,37 @@ export class RootReducer implements Reducer<Action> {
         draft.gameIsStopped = !draft.gameIsStopped;
       }
     });
+  }
+
+  private _evolveGhost(ghost: GhostState, walls: GameCoordinate[]): void {
+    let newFacing = ghost.facing;
+
+    const newAt = (d: Direction) => getGameCoordinateNeighbour(ghost.at, d, 19, 21);
+    const inWall = (d: Direction) => walls.some(o => new GameCoordinateHelper().areEqual(o, newAt(d)));
+
+    if (Math.random() < 0.2) {
+      newFacing = Math.random() < 0.5 ? turnLeft(ghost.facing) : turnRight(ghost.facing);
+    }
+
+    if (inWall(newFacing)) {
+      newFacing = ghost.facing;
+    }
+
+    const leftFirst = Math.random() < 0.5;
+
+    if (inWall(newFacing)) {
+      newFacing = leftFirst ? turnLeft(ghost.facing) : turnRight(ghost.facing);
+    }
+
+    if (inWall(newFacing)) {
+      newFacing = leftFirst ? turnRight(ghost.facing) : turnLeft(ghost.facing);
+    }
+
+    if (inWall(newFacing)) {
+      newFacing = turnAround(ghost.facing);
+    }
+
+    ghost.facing = newFacing;
+    ghost.at = newAt(newFacing);
   }
 }

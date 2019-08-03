@@ -1,5 +1,7 @@
 import { Direction } from '../_models/direction';
 
+
+
 export const turnRight = (direction: Direction): Direction => {
   return (direction + 1) % 4;
 };
