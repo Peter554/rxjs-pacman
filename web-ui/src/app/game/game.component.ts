@@ -49,7 +49,6 @@ export class GameComponent implements OnInit {
     drawEffect$.subscribe();
 
     this._gameEngine.start();
-    this._gameEngine.startSound();
   }
 
   public handleClickOnRestart(): void {

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable, NEVER, interval, timer } from 'rxjs';
+import { Subject, Observable, NEVER, interval } from 'rxjs';
 import { scan, shareReplay, startWith, map, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
-import { Howl } from 'howler';
 
 import { GameState } from './_models/game-state';
 import { Action } from './_actions/action';
@@ -34,20 +33,6 @@ export class GameEngine {
         this.dispatch(new NextFrameAction());
       })
     );
-
-    const sound = new Howl({
-      src: ['assets/opening_song.mp3']
-    });
-
-    this._soundEffect$ = this.state$.pipe(
-      map(o => o.gameIsStopped),
-      distinctUntilChanged(),
-      switchMap(o => (o ? NEVER : timer(0, 8000))),
-      map(() => {}),
-      tap(() => {
-        sound.play();
-      })
-    );
   }
 
   public readonly actions$: Observable<Action>;
@@ -55,14 +40,9 @@ export class GameEngine {
 
   private readonly _actions$ = new Subject<Action>();
   private readonly _framesEffect$: Observable<void>;
-  private readonly _soundEffect$: Observable<void>;
 
   public start(): void {
     this._framesEffect$.subscribe();
-  }
-
-  public startSound(): void {
-    this._soundEffect$.subscribe();
   }
 
   public dispatch(action: Action): void {
