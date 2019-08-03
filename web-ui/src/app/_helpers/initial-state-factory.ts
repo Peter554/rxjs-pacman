@@ -3,12 +3,14 @@ import { GameState } from '../_models/game-state';
 import { Direction } from '../_models/direction';
 import { GhostState } from '../_models/ghost-state';
 import { GameCoordinate } from '../_models/game-coordinate';
-import { areEqual } from './are-equal';
+import { GameCoordinateHelper } from './game-coordinate-helper';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InitialStateFactory {
+  constructor(private readonly _gameCoordinateHelper: GameCoordinateHelper) {}
+
   public getInitialState(): GameState {
     return {
       gameIsStopped: false,
@@ -302,10 +304,10 @@ export class InitialStateFactory {
   }
 
   private _getGemCoordinates(): GameCoordinate[] {
-    let gems = this._getAllGameCoordinates(19, 21).filter(o => !areEqual(o, [2, 2]));
+    let gems = this._getAllGameCoordinates(19, 21).filter(o => !this._gameCoordinateHelper.areEqual(o, [2, 2]));
 
     this._getWallCoordinates().forEach(wall => {
-      gems = gems.filter(o => !areEqual(o, wall));
+      gems = gems.filter(o => !this._gameCoordinateHelper.areEqual(o, wall));
     });
 
     return gems;

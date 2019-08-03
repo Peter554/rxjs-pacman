@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { produce } from 'immer';
 
 import { Reducer } from './reducer';
 import { Action } from '../_actions/action';
@@ -8,37 +9,89 @@ import { KeyDownAction } from '../_actions/key-down-action';
 import { KeyLeftAction } from '../_actions/key-left-action';
 import { KeyRightAction } from '../_actions/key-right-action';
 import { RestartGameAction } from '../_actions/restart-game-action';
-import { reduceKeyPress } from './reduce-key-press';
 import { GameStoppedToggleAction } from '../_actions/game-stopped-toggle.action';
-import { reduceGameStoppedToggle } from './reduce-game-stopped-toggle';
 import { NextFrameAction } from '../_actions/next-frame-action';
-import { reduceNextFrame } from './reduce-next-frame';
 import { Direction } from '../_models/direction';
 import { InitialStateFactory } from '../_helpers/initial-state-factory';
+import { GameCoordinateHelper } from '../_helpers/game-coordinate-helper';
+import { getGameCoordinateNeighbour } from '../_helpers/get-game-coordinate-neighbour';
+import { evolveGhost } from '../_helpers/evolve-ghost-position';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RootReducer implements Reducer<Action> {
-  constructor(private readonly _initialStateFactory: InitialStateFactory) {}
+  constructor(
+    private readonly _initialStateFactory: InitialStateFactory,
+    private readonly _gameCoordinateHelper: GameCoordinateHelper
+  ) {}
 
   public reduce(state: GameState, action: Action): GameState {
     if (action instanceof KeyUpAction) {
-      return reduceKeyPress(state, Direction.Up);
+      return this._reduceKeyPress(state, Direction.Up);
     } else if (action instanceof KeyDownAction) {
-      return reduceKeyPress(state, Direction.Down);
+      return this._reduceKeyPress(state, Direction.Down);
     } else if (action instanceof KeyLeftAction) {
-      return reduceKeyPress(state, Direction.Left);
+      return this._reduceKeyPress(state, Direction.Left);
     } else if (action instanceof KeyRightAction) {
-      return reduceKeyPress(state, Direction.Right);
+      return this._reduceKeyPress(state, Direction.Right);
     } else if (action instanceof NextFrameAction) {
-      return reduceNextFrame(state);
+      return this._reduceNextFrame(state);
     } else if (action instanceof GameStoppedToggleAction) {
-      return reduceGameStoppedToggle(state);
+      return this._reduceGameStoppedToggle(state);
     } else if (action instanceof RestartGameAction) {
       return this._initialStateFactory.getInitialState();
     } else {
       return state;
     }
+  }
+
+  private _reduceKeyPress(state: GameState, direction: Direction): GameState {
+    return produce(state, draft => {
+      if (!draft.gameIsStopped && !draft.gameIsOver) {
+        draft.player.facing = direction;
+      }
+    });
+  }
+
+  private _reduceNextFrame(state: GameState): GameState {
+    return produce(state, draft => {
+      if (!draft.gameIsStopped && !draft.gameIsOver) {
+        draft.frames += 1;
+
+        const tryPlayerAt = getGameCoordinateNeighbour(draft.player.at, draft.player.facing, 19, 21);
+        if (!this._gameCoordinateHelper.contains(draft.wallsAt, tryPlayerAt)) {
+          draft.player.at = tryPlayerAt;
+        }
+
+        if (this._gameCoordinateHelper.contains(draft.ghosts.map(o => o.at), draft.player.at)) {
+          draft.gameIsOver = true;
+        }
+
+        if (!draft.gameIsOver) {
+          draft.ghosts.forEach(ghost => {
+            evolveGhost(ghost, draft.wallsAt);
+          });
+
+          if (this._gameCoordinateHelper.contains(draft.ghosts.map(o => o.at), draft.player.at)) {
+            draft.gameIsOver = true;
+            draft.gameIsStopped = true;
+          }
+
+          if (this._gameCoordinateHelper.contains(draft.gemsAt, draft.player.at)) {
+            draft.gemsAt = this._gameCoordinateHelper.remove(draft.gemsAt, draft.player.at);
+            draft.score++;
+          }
+        }
+      }
+    });
+  }
+
+  private _reduceGameStoppedToggle(state: GameState): GameState {
+    return produce(state, draft => {
+      if (!draft.gameIsOver) {
+        draft.gameIsStopped = !draft.gameIsStopped;
+      }
+    });
   }
 }

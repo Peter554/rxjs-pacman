@@ -23,7 +23,10 @@ export class GameEngine {
     this.actions$ = this._actions$.asObservable();
 
     this.state$ = this.actions$.pipe(
-      scan<Action, GameState>(this._reducer.reduce, this._initialStateFactory.getInitialState()),
+      scan<Action, GameState>(
+        (state, action) => this._reducer.reduce(state, action),
+        this._initialStateFactory.getInitialState()
+      ),
       startWith(this._initialStateFactory.getInitialState()),
       shareReplay(1)
     );
